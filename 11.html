@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+      <script>
+      function submitForm(event) {
+      event.preventDefault();
+      var form = document.getElementById('signupForm');
+      var signatureImage = canvas.toDataURL(); // 서명을 이미지 데이터 URL로 변환
+      var formData = {
+        name: form.name.value,
+        tel: form.tel.value,
+        email: form.email.value,
+        member: form.member.value,
+        yes: form.yes.value,
+        signature: signatureImage
+      };
+        google.script.run.processForm(formData);
+        google.script.run.sendEmail(formData); // 이메일을 보내는 함수 호출
+        setTimeout(() => form.reset(), 3000); // 3초뒤 rese
+        setTimeout(() => clearSignature(), 3000); // 3초뒤 clear sing
+        alert('👌교육참가 관련 개인정보 제공 및 활용 동의서가 제출되었습니다. \n 🙍‍♀️감사합니다');
+}
+</script>
+      <style>
+        body {
+          margin: 10px;
+        }
+        #signatureCanvas {
+          box-shadow:0px 3px 6px grey;
+          border-radius: 5px;
+          border: 1px solid black;
+          background-color: beige;
+        }
+        #docu, #close {
+          display: none;
+        }
+        </style>
+  </head>
+  <body>
+    <h4>| 개인정보 제공.활용동의 신청서 |</h4>
+    <br>
+    <form id="signupForm"  onsubmit="submitForm(event)">
+      <label class="form-label" for="name">🤷‍♂️이름:</label>
+      <input class="form-control" type="text" id="names" name="name" required><br>
+      <label for="tel">☎️연락처(#형식: 010-0000-0000)
+      </label>
+      <input class="form-control" type="text" id="tel" pattern="010-[0-9]{4}-[0-9]{4}\s*" value="010-" name="tel" required><br>
+      <label for="email">📧이메일
+      </label>
+      <input class="form-control" type="email" id="email" name="email" required><br>
+      <label class="form-label" for="member">✨조합명:</label>
+      <input class="form-control" type="text" id="members" name="member" required><br>
+            <h5>⭐개인정보 제공.활용 동의 </h5>
+      <small>🤷‍♀️아래에 동의문구 "□" ✔(체크) 및 자필서명 바랍니다.</small> 
+      <br> <br>
+      <input type="checkbox" name="yes" value="동의합니다" required>
+      <label for="yes1">신협 교육참가와 관련하여 이름, 연락처 등의 개인정보 제공 및 활용에 동의 합니다.(자세한 내용은 아래 [개인정보제공내용]을 참조해 주세요</label>
+      <br>
+      <div class="mb-3">  
+      <!-- <label class="form-label" for="signature">📝자필서명:</label> -->
+      <canvas id="signatureCanvas" width="300" height="150"></canvas>
+      </div>
+      <button class="btn btn-primary w-100" type="submit">✔제출하기</button>
+      </div>
+    </form>
+    <br>
+    <script>
+      var canvas = document.getElementById('signatureCanvas');
+      var ctx = canvas.getContext('2d');
+      ctx.lineWidth = 2;
+      var isDrawing = false;
+           
+      canvas.addEventListener('touchstart', startDrawing);
+      canvas.addEventListener('touchmove', draw);
+      canvas.addEventListener('touchend', stopDrawing);
+      
+      canvas.addEventListener('mousedown', function(event) {
+      alert('🤷‍♀️모바일에서만 서명하실 수 있습니다.');
+       });
+      
+      function startDrawing(event) {
+        isDrawing = true;
+        var rect = canvas.getBoundingClientRect();
+        var x = event.touches[0].clientX - rect.left;
+        var y = event.touches[0].clientY - rect.top;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      }
+      
+      function draw(event) {
+        event.preventDefault();
+        if (!isDrawing) return;
+        var rect = canvas.getBoundingClientRect();
+        var x = event.touches[0].clientX - rect.left;
+        var y = event.touches[0].clientY - rect.top;
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
+      
+      function stopDrawing() {
+        isDrawing = false;
+      }
+      
+      function clearSignature() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+       // iOS(아이폰 등) 제스처 이벤트 처리
+      canvas.addEventListener('gesturestart', function(event) {
+      event.preventDefault();
+      startDrawing(event);
+      });
+
+     canvas.addEventListener('gesturechange', function(event) {
+     event.preventDefault();
+    draw(event);
+    });
+
+    canvas.addEventListener('gestureend', function(event) {
+    event.preventDefault();
+    stopDrawing();
+    });
+    // 여기까지 ios 제스처 처리 js 추가
+
+      ctx.font = "15px Arial";  // 폰트 크기와 스타일을 설정합니다.
+      ctx.fillText('서명일자: ' + new Date().toLocaleDateString(), 5, 140);  // (10, 50) 위치에 "문구"삽입
+        </script>
+       <script>
+    $( function() {
+      var availableTags = [
+        "홍길동",
+        "박문수"
+      ];
+      $( "#names" ).autocomplete({
+        source: availableTags
+      });
+    } );
+    </script> 
+      <script>
+  $( function() {
+    var availableTags = [
+      "한국신협",
+      "미국신협"
+    ];
+    $( "#members" ).autocomplete({
+      source: availableTags
+    });
+  } );
+  </script>
+  <script>
+      function opendocu() {
+        document.getElementById("open").style.display='none';
+        document.getElementById("close").style.display='block';
+        document.getElementById("docu").style.display='block';
+        window.scrollTo(0, document.body.scrollHeight); 
+      }
+      function closedocu() {
+        document.getElementById("open").style.display='block';
+        document.getElementById("close").style.display='none';
+        document.getElementById("docu").style.display='none';
+      }
+    </script>
+        
+      </body>
+    </html>
